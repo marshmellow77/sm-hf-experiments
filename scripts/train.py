@@ -1,4 +1,4 @@
-from transformers import AutoModelForSequenceClassification, Trainer, TrainingArguments
+from transformers import AutoModelForSequenceClassification, Trainer, TrainingArguments, AutoTokenizer
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from datasets import load_from_disk
 import random
@@ -55,6 +55,7 @@ if __name__ == "__main__":
 
     # download model from model hub
     model = AutoModelForSequenceClassification.from_pretrained(args.model_name)
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 
     # define training args
     training_args = TrainingArguments(
@@ -75,6 +76,7 @@ if __name__ == "__main__":
         compute_metrics=compute_metrics,
         train_dataset=train_dataset,
         eval_dataset=test_dataset,
+        tokenizer=tokenizer,
     )
 
     # train model
@@ -84,11 +86,10 @@ if __name__ == "__main__":
     eval_result = trainer.evaluate(eval_dataset=test_dataset)
 
     # writes eval result to file which can be accessed later in s3 ouput
-#     with open(os.path.join(args.output_data_dir, "eval_results.txt"), "w") as writer:
-#         print(f"***** Eval results *****")
-#         for key, value in sorted(eval_result.items()):
-#             writer.write(f"{key} = {value}\n")
+    with open(os.path.join(args.output_data_dir, "eval_results.txt"), "w") as writer:
+        print(f"***** Eval results *****")
+        for key, value in sorted(eval_result.items()):
+            writer.write(f"{key} = {value}\n")
 
     # Saves the model to s3
     trainer.save_model(args.model_dir)
-
