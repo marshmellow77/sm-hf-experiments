@@ -27,10 +27,12 @@ metric_definitions = [
     {"Name": "test:recall", "Regex": "\'eval_recall\': (.*?),"},
 ]    
 
+experiment_name = f"nlp-classification-{int(time.time())}"
+print(experiment_name)
 
 # create SM Experiment
 nlp_experiment = Experiment.create(
-    experiment_name=f"nlp-classification-{int(time.time())}",
+    experiment_name=experiment_name,
     description="NLP Classification",
     sagemaker_boto_client=sm)
 
