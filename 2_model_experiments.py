@@ -7,15 +7,19 @@ import sagemaker
 
 sess = sagemaker.Session()
 sagemaker_session_bucket = sess.default_bucket()
-role = sagemaker.get_execution_role()
+# role = sagemaker.get_execution_role()
 sess = sagemaker.Session(default_bucket=sagemaker_session_bucket)
+
+ROLE_NAME = 'AmazonSageMaker-ExecutionRole-20201015T174616'
+iam = boto3.client('iam')
+role = iam.get_role(RoleName=ROLE_NAME)['Role']['Arn']
 
 model_list = ['distilbert-base-uncased', 'distilroberta-base']
 s3_prefix_orig = 'samples/datasets/imdb/'
 
 sm = boto3.client('sagemaker')
 
-metric_definitions=[
+metric_definitions = [
     {"Name": "test:loss", "Regex": "\'eval_loss\': (.*?),"},
     {"Name": "test:accuracy", "Regex": "\'eval_accuracy\': (.*?),"},
     {"Name": "test:f1", "Regex": "\'eval_f1\': (.*?),"},
@@ -26,7 +30,7 @@ metric_definitions=[
 
 # create SM Experiment
 nlp_experiment = Experiment.create(
-    experiment_name="nlp-classification",
+    experiment_name=f"nlp-classification-{int(time.time())}",
     description="NLP Classification",
     sagemaker_boto_client=sm)
 
@@ -54,7 +58,7 @@ for model_name in model_list:
                                         transformers_version='4.6',
                                         pytorch_version='1.7',
                                         py_version='py36',
-                                        hyperparameters = hyperparameters,
+                                        hyperparameters=hyperparameters,
                                         metric_definitions=metric_definitions,
                                         enable_sagemaker_metrics=True,)
     

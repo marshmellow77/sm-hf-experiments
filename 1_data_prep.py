@@ -28,7 +28,7 @@ for model_name in model_list:
     test_dataset = test_dataset_orig.map(tokenize, batched=True)
     
     # put datasets into torch format
-    train_dataset =  train_dataset.rename_column("label", "labels")
+    train_dataset = train_dataset.rename_column("label", "labels")
     train_dataset.set_format('torch', columns=['input_ids', 'attention_mask', 'labels'])
     test_dataset = test_dataset.rename_column("label", "labels")
     test_dataset.set_format('torch', columns=['input_ids', 'attention_mask', 'labels'])
@@ -44,4 +44,3 @@ for model_name in model_list:
     test_dataset.save_to_disk(test_input_path,fs=s3)
     
 print("Data prep done!")
-    
